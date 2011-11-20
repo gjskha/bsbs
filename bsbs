@@ -1,0 +1,176 @@
+#!/bin/bash
+# bsbs - a bayesian spam filter written in the bash shell. 
+
+program=$(basename $0);
+pidfile=/tmp/$program.lockfile;
+corpora=$(pwd)/corpora
+
+trap 'cleanup 1' SIGINT SIGTERM;
+
+if [ -f $pidfile ]; then
+    echo "Error: $program is currently running under process $(< $pidfile ). Exiting.";
+    exit 1;
+else
+    echo $$ > $pidfile;
+fi
+
+if [ ! -d $corpora ]; then
+    echo "Error: corpora directory $corpora doesn't exist or is not accessible: Exiting.";
+    cleanup 1;
+fi
+
+function cleanup() {
+    rm $pidfile;
+    rm -f /tmp/$program.$$*
+    exit $1;
+}
+
+function usage_statement() {
+    echo "$program is a bayesian spam filter written in the bash shell.";
+    echo "";
+    echo "Usage is one of:";
+    echo "    $program -h";
+    echo "    $program -t";
+    echo "    $program -s [document]";
+    echo "Where:";
+    echo "    -h prints this message and exits";
+    echo "    -t trains $program on $corpora";
+    echo "    -s scores the specified document";
+
+    cleanup 0;
+}
+
+function train_corpus() {
+    label=$1;
+    if [ -f $corpora/$label/stats.$label ]; then
+       mv $corpora/$label/stats.$label $corpora/$label/stats.$label.bak
+    fi
+
+    if [ -d $corpora/$label ]; then
+        echo "training corpus: $label";
+        file_count=0;
+        for file in $( ls $corpora/$label | grep -v stats ); do
+            file_count=$(( $file_count + 1 ));
+            echo file is $file
+            sed 's/\s/\n/g' $corpora/$label/$file >> /tmp/$program.$$.$label
+        done
+        echo "@@@@ $file_count" > $corpora/$label/stats.$label;
+        sort /tmp/$program.$$.$label | uniq -c >> $corpora/$label/stats.$label
+    else
+        echo "Error: $corpora/$label was not found or is unavailable. Exiting.";
+        cleanup 1;
+    fi
+
+}
+
+function add_document_to_corpus() {
+    document=$1;
+    corpus=$2;
+    old_fc=$( ls -1 $corpora/$corpus/[0-9]* | wc -l );
+    new_fc=$(( $old_fc + 1 ));
+    #echo cp $document $corpora/$corpus/$new_fc;
+    cp $document $corpora/$corpus/$new_fc;
+    if [[ $? != 0 ]]; then
+        echo "Error: could not copy $document to $corpora/$corpus/$new_fc.  Exiting.";
+        cleanup 1;
+    fi;
+}
+
+function score_document() {
+    docmt=$1;
+    #for i in foo bar baz qux; do echo ${#y[@]}; y[${#y[@]}]="$i"; done
+    spam_file_count=$( grep "@@@@" $corpora/spam/stats.spam | awk '{print $2}' );
+    ham_file_count=$( grep "@@@@" $corpora/ham/stats.ham | awk '{print $2}' );
+    while read line; do
+        count=${line%% *};
+        token=${line##* };
+        num_token_spam=$(grep $token $corpora/spam/stats.spam | awk '{print $1}' )
+        num_token_ham=$(grep $token $corpora/ham/stats.ham | awk '{print $1}' )
+        if [[ $num_token_spam == "" ]]; then
+            # a very small value, to avoid division by zero
+            bw=$( echo 0.00001 / $spam_file_count | bc -l );
+        else
+            bw=$( echo $num_token_spam / $spam_file_count | bc -l );
+        fi
+        if [[ $num_token_ham == "" ]]; then
+            # a very small value, to avoid division by zero
+            gw=$( echo 0.00001 / $spam_file_count | bc -l );
+        else
+            gw=$( echo $num_token_ham / $ham_file_count | bc -l );
+        fi
+        pw=$( echo scale\=2\; $bw / \( $bw + $gw \) | bc -l )
+        #echo $token: bw: $bw gw: $gw pw: $pw
+        all_token_probabilities+=( $pw );
+    done < <(sed 's/\s/\n/g' $docmt | sort | uniq -c | sort -rn | head -5) # 5 most interesting tokens only
+
+    # create our equation for computing the overall score
+    for ix in ${!all_token_probabilities[*]}; do
+        if [[ $ix -gt 0 ]]; then
+            # there is a subtle bug here, if you have files in the pwd that are named like .[0-9]*
+            numerator=$(echo ${numerator}*${all_token_probabilities[$ix]});
+            denomina1=$(echo ${denomina1}*${all_token_probabilities[$ix]});
+            denomina2=$( echo ${denomina2}*\( 1 - ${all_token_probabilities[$ix]} \));
+        else
+            numerator=$( echo ${all_token_probabilities[$ix]});
+            denomina1=$( echo ${all_token_probabilities[$ix]});
+            denomina2=$( echo \( 1 - ${all_token_probabilities[$ix]} \));
+        fi
+    done
+
+    # get it.
+    overall_score=$( echo scale\=2\; $numerator / $denomina1 + $denomina2 | bc -l )
+
+    echo -n "overall score is $overall_score. ";
+    # if it is more than 60% spammy, add it to the spam corpus, otherwise, add to ham.
+    if [ $( echo "${overall_score}>.6" | bc) -eq 1 ]; then
+        echo "Spammy";
+        add_document_to_corpus $docmt spam
+    else
+        echo "Hammy";
+        add_document_to_corpus $docmt ham
+    fi
+}
+
+while getopts hts: opt; do
+    case $opt in
+        h)
+            usage_statement
+        ;;
+        t)
+            topt=1
+        ;;
+        s)
+            sopt=1;
+            docmt2score=$OPTARG
+        ;;
+        \?)
+            usage_statement
+        ;;
+    esac;
+done;
+
+if [[ $topt && $sopt ]]; then
+    echo "Error: you specified both train and score options.  Please choose one or the other but not both.  Exiting.";
+cleanup 1;
+fi
+
+if [[ -z $topt && -z $sopt ]]; then
+    echo "Error: Nothing to do! (try the -h flag). Exiting.";
+    cleanup 1;
+fi
+
+if [ $sopt ]; then
+    if [ ! -f $docmt2score ]; then
+        echo "Error: cannot access the document \"$docmt2score\". Exiting.";
+        cleanup 1;
+    else
+        score_document $docmt2score;
+    fi
+fi
+
+if [ $topt ]; then
+    train_corpus ham
+    train_corpus spam
+fi
+
+cleanup 0;
