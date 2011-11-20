@@ -84,8 +84,8 @@ function score_document() {
     while read line; do
         count=${line%% *};
         token=${line##* };
-        num_token_spam=$(grep $token $corpora/spam/stats.spam | awk '{print $1}' )
-        num_token_ham=$(grep $token $corpora/ham/stats.ham | awk '{print $1}' )
+        num_token_spam=$(grep $token $corpora/spam/stats.spam | awk '{print $1}' | head -1 ) # spam vs. spammy
+        num_token_ham=$(grep $token $corpora/ham/stats.ham | awk '{print $1}' | head -1 )
         if [[ $num_token_spam == "" ]]; then
             # a very small value, to avoid division by zero
             bw=$( echo 0.00001 / $spam_file_count | bc -l );
@@ -107,22 +107,22 @@ function score_document() {
     for ix in ${!all_token_probabilities[*]}; do
         if [[ $ix -gt 0 ]]; then
             # there is a subtle bug here, if you have files in the pwd that are named like .[0-9]*
-            numerator=$(echo ${numerator}*${all_token_probabilities[$ix]});
-            denomina1=$(echo ${denomina1}*${all_token_probabilities[$ix]});
-            denomina2=$( echo ${denomina2}*\( 1 - ${all_token_probabilities[$ix]} \));
+            numerator=$( echo ${numerator}*${all_token_probabilities[$ix]} );
+            denomina1=$( echo ${denomina1}*${all_token_probabilities[$ix]} );
+            denomina2=$( echo ${denomina2}*\( 1 - ${all_token_probabilities[$ix]}\) );
         else
-            numerator=$( echo ${all_token_probabilities[$ix]});
-            denomina1=$( echo ${all_token_probabilities[$ix]});
-            denomina2=$( echo \( 1 - ${all_token_probabilities[$ix]} \));
+            numerator=$( echo ${all_token_probabilities[$ix]} );
+            denomina1=$( echo ${all_token_probabilities[$ix]} );
+            denomina2=$( echo \(1 - ${all_token_probabilities[$ix]}\) );
         fi
     done
 
     # get it.
-    overall_score=$( echo scale\=2\; $numerator / $denomina1 + $denomina2 | bc -l )
+    overall_score=$( echo scale\=2\; $numerator / \( $denomina1 + $denomina2 \) | bc -l )
 
     echo -n "overall score is $overall_score. ";
     # if it is more than 60% spammy, add it to the spam corpus, otherwise, add to ham.
-    if [ $( echo "${overall_score}>.6" | bc) -eq 1 ]; then
+    if [ $( echo "${overall_score}>.6" | bc ) -eq 1 ]; then
         echo "Spammy";
         add_document_to_corpus $docmt spam
     else
