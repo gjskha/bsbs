@@ -1,0 +1,14 @@
+bsbs - Bayesian Spamfilter in Bash Shell
+
+I have a Unix shell account with no ability to install software, and I needed
+to block spam.  So I am experimenting with a shell script that uses a
+Bayesian-like filtering algorithm.  I used the following web pages as a
+guideline:
+
+http://www.process.com/precisemail/bayesian_example.htm
+http://www.vjs.org/spam/bayesian-analysis.html
+
+There are still a few kinks to work out, and as with all things spam, how it
+performs in actual practice will determine future direction.
+
+TBD: integrating with mutt & procmail

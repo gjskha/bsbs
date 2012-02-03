@@ -1,106 +1,141 @@
 #!/bin/bash
 # bsbs - a bayesian spam filter written in the bash shell. 
 
+####################################################################
+# first, basic housekeeping stuff
+
 program=$(basename $0);
 pidfile=/tmp/$program.lockfile;
 corpora=$(pwd)/corpora
 
-trap 'cleanup 1' SIGINT SIGTERM;
-
+# make sure we are not still training when we score: the shell can be slow.
 if [ -f $pidfile ]; then
-    echo "Error: $program is currently running under process $(< $pidfile ). Exiting.";
-    exit 1;
+    echo "Error: $program is currently running under process $(< $pidfile ). Exiting."
+    exit 1
 else
-    echo $$ > $pidfile;
+    echo $$ > $pidfile
 fi
 
-if [ ! -d $corpora ]; then
-    echo "Error: corpora directory $corpora doesn't exist or is not accessible: Exiting.";
-    cleanup 1;
-fi
-
+# cleanup:
+# exit nicely.
+trap 'cleanup 1' SIGINT SIGTERM
 function cleanup() {
-    rm $pidfile;
+    rm $pidfile
     rm -f /tmp/$program.$$*
-    exit $1;
+    exit $1
 }
 
+# usage_statement:
+# how to use this.
 function usage_statement() {
-    echo "$program is a bayesian spam filter written in the bash shell.";
-    echo "";
-    echo "Usage is one of:";
-    echo "    $program -h";
-    echo "    $program -t";
-    echo "    $program -s [document]";
-    echo "Where:";
-    echo "    -h prints this message and exits";
-    echo "    -t trains $program on $corpora";
-    echo "    -s scores the specified document";
+    echo "$program is a bayesian spam filter written in the bash shell."
+    echo 
+    echo "Usage is one of:"
+    echo "    $program -h"
+    echo "    $program -t"
+    echo "    $program -p [spool] [dispensation]"
+    echo "    $program [-q] -s [document]"
+    echo "Where:"
+    echo "    -h prints this message and exits"
+    echo "    -p takes a spool of messages to create a specified corpus under $corpora"
+    echo "    -t trains $program on $corpora"
+    echo "    -s scores the specified document"
+    echo "    -q tells $program to be quiet, for use within mutt for example"
 
-    cleanup 0;
+    cleanup 0
 }
 
-function train_corpus() {
-    label=$1;
-    if [ -f $corpora/$label/stats.$label ]; then
-       mv $corpora/$label/stats.$label $corpora/$label/stats.$label.bak
+# corpora_exists:
+# check that there is usable data.
+function corpora_exists() {
+    if [ ! -d $corpora ]; then
+        echo "Error: corpora directory $corpora doesn't exist or is not accessible: Exiting."
+        cleanup 1
     fi
+}
 
+####################################################################
+# Rest of our subroutines go here
+
+# populate_corpus:
+# take a mail spool, divide it into individual messages and add it to the specified corpus
+function populate_corpus() {
+    spool=$1
+    disp=$2
+    #echo spool is $spool and dispensation is $disp
+    last=$( ls -1 $corpora/$disp/[0-9]* 2>/dev/null | wc -l )
+    awk -v "last=$last" -v "corpus=$corpora/$disp" 'BEGIN {RS = "\n\nFrom "} {print "From",$0 > corpus"/"last+NR} END {print "put "NR" messages into "corpus}' $spool
+}
+
+# stats_file_rename:
+# give us the date of the last scoring
+function stats_file_rename {
+   label=$1
+   grep "@@@@" $corpora/$label/stats.$label | awk '{print $3}'
+
+}
+
+# train_corpus:
+# counts the tokens and the number of times it occurs for a given corpus (spam or ham)
+function train_corpus() {
+    label=$1
+    if [ -f $corpora/$label/stats.$label ]; then
+       #mv $corpora/$label/stats.$label $corpora/$label/stats.$label.bak
+       mv $corpora/$label/stats.$label $corpora/$label/stats.$label.$( stats_file_rename $label )
+    fi
     if [ -d $corpora/$label ]; then
-        echo "training corpus: $label";
-        file_count=0;
+        echo "training corpus: $label"
+        file_count=0
         for file in $( ls $corpora/$label | grep -v stats ); do
-            file_count=$(( $file_count + 1 ));
-            echo file is $file
+            file_count=$(( $file_count + 1 ))
             sed 's/\s/\n/g' $corpora/$label/$file >> /tmp/$program.$$.$label
         done
-        echo "@@@@ $file_count" > $corpora/$label/stats.$label;
+        echo "@@@@ $file_count $(date +%y-%m-%d-%H%M%S)" > $corpora/$label/stats.$label
         sort /tmp/$program.$$.$label | uniq -c >> $corpora/$label/stats.$label
     else
-        echo "Error: $corpora/$label was not found or is unavailable. Exiting.";
-        cleanup 1;
+        echo "Error: $corpora/$label was not found or is unavailable. Exiting."
+        cleanup 1
     fi
-
 }
 
+# add_document_to_corpus:
+# takes a message and places it in either spam or ham, named sequentially.
 function add_document_to_corpus() {
-    document=$1;
-    corpus=$2;
-    old_fc=$( ls -1 $corpora/$corpus/[0-9]* | wc -l );
-    new_fc=$(( $old_fc + 1 ));
-    #echo cp $document $corpora/$corpus/$new_fc;
-    cp $document $corpora/$corpus/$new_fc;
+    document=$1
+    corpus=$2
+    old_fc=$( ls -1 $corpora/$corpus/[0-9]* 2>/dev/null | wc -l )
+    new_fc=$(( $old_fc + 1 ))
+    cp $document $corpora/$corpus/$new_fc
     if [[ $? != 0 ]]; then
-        echo "Error: could not copy $document to $corpora/$corpus/$new_fc.  Exiting.";
-        cleanup 1;
-    fi;
+        echo "Error: could not copy $document to $corpora/$corpus/$new_fc.  Exiting."
+        cleanup 1
+    fi
 }
 
+# score_document:
+# implements the bayesian formula 
 function score_document() {
-    docmt=$1;
-    #for i in foo bar baz qux; do echo ${#y[@]}; y[${#y[@]}]="$i"; done
-    spam_file_count=$( grep "@@@@" $corpora/spam/stats.spam | awk '{print $2}' );
-    ham_file_count=$( grep "@@@@" $corpora/ham/stats.ham | awk '{print $2}' );
+    docmt=$1
+    spam_file_count=$( grep "@@@@" $corpora/spam/stats.spam | awk '{print $2}' )
+    ham_file_count=$( grep "@@@@" $corpora/ham/stats.ham | awk '{print $2}' )
     while read line; do
-        count=${line%% *};
-        token=${line##* };
+        token=${line##* }
         num_token_spam=$(grep $token $corpora/spam/stats.spam | awk '{print $1}' | head -1 ) # spam vs. spammy
         num_token_ham=$(grep $token $corpora/ham/stats.ham | awk '{print $1}' | head -1 )
         if [[ $num_token_spam == "" ]]; then
-            # a very small value, to avoid division by zero
-            bw=$( echo 0.00001 / $spam_file_count | bc -l );
+            # a very small value, to avoid calculation errors
+            bw=$( echo 0.00001 / $spam_file_count | bc -l )
         else
-            bw=$( echo $num_token_spam / $spam_file_count | bc -l );
+            bw=$( echo $num_token_spam / $spam_file_count | bc -l )
         fi
         if [[ $num_token_ham == "" ]]; then
-            # a very small value, to avoid division by zero
-            gw=$( echo 0.00001 / $spam_file_count | bc -l );
+            # a very small value, to avoid calculation errors
+            gw=$( echo 0.00001 / $spam_file_count | bc -l )
         else
-            gw=$( echo $num_token_ham / $ham_file_count | bc -l );
+            gw=$( echo $num_token_ham / $ham_file_count | bc -l )
         fi
         pw=$( echo scale\=2\; $bw / \( $bw + $gw \) | bc -l )
-        #echo $token: bw: $bw gw: $gw pw: $pw
-        all_token_probabilities+=( $pw );
+        all_token_probabilities+=( $pw )
     done < <(sed 's/\s/\n/g' $docmt | sort | uniq -c | sort -rn | head -5) # 5 most interesting tokens only
 
     # create our equation for computing the overall score
@@ -131,40 +166,54 @@ function score_document() {
     fi
 }
 
-while getopts hts: opt; do
+######################################################################
+# Get our command line variables and begin the execution of the script
+
+while getopts htp:s: opt; do
     case $opt in
         h)
             usage_statement
         ;;
-        t)
+        q)
+            be_quiet=true 
+        ;;
+	t)
             topt=1
         ;;
         s)
             sopt=1;
             docmt2score=$OPTARG
         ;;
+        p)
+            popt=1;
+            spool_info=( $@ )
+        ;;
         \?)
             usage_statement
         ;;
     esac;
-done;
+done
 
-if [[ $topt && $sopt ]]; then
-    echo "Error: you specified both train and score options.  Please choose one or the other but not both.  Exiting.";
-cleanup 1;
+# one thing at a time
+if [[ $topt && $sopt || $topt && $popt || $sopt && $popt ]]; then
+    echo "Error: you specified more than one option.  Please choose one only.  Exiting."
+    cleanup 1
 fi
 
-if [[ -z $topt && -z $sopt ]]; then
-    echo "Error: Nothing to do! (try the -h flag). Exiting.";
-    cleanup 1;
+# make sure the script has something to do
+if [[ -z $topt && -z $sopt && -z $popt ]]; then
+    echo "Error: Nothing to do! (try the -h flag). Exiting."
+    cleanup 1
 fi
+
+# finally, decide what to do based on what options are passed.
 
 if [ $sopt ]; then
     if [ ! -f $docmt2score ]; then
-        echo "Error: cannot access the document \"$docmt2score\". Exiting.";
-        cleanup 1;
+        echo "Error: cannot access the document \"$docmt2score\". Exiting."
+        cleanup 1
     else
-        score_document $docmt2score;
+        score_document $docmt2score
     fi
 fi
 
@@ -173,4 +222,15 @@ if [ $topt ]; then
     train_corpus spam
 fi
 
-cleanup 0;
+if [ $popt ]; then
+    if [ ! -f $spool ]; then
+        echo "Error: cannot access mail spool \"$spool\". Exiting."
+        cleanup 1
+    else
+        spool=${spool_info[1]}
+        dispensation=${spool_info[2]}
+        populate_corpus $spool $dispensation
+    fi 
+fi
+
+cleanup 0

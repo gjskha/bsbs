@@ -1,3 +1,67 @@
-barney
-wilma
-pebbles
+Received: from urchin.earth.li (urchin.earth.li [212.13.204.73])
+by my.mail.host (8.14.5/8.14.3) with ESMTP id pB9C2FVP026685
+for <gjskha@none.of.your.business>; Fri, 9 Dec 2011 12:02:16 GMT
+Received: from localhost ([127.0.0.1] helo=urchin.earth.li)
+by urchin.earth.li with esmtp (Exim 4.72)
+(envelope-from <openguides-dev-bounces@lists.openguides.org>)
+id 1RYz9J-0007Sr-M7; Fri, 09 Dec 2011 12:01:57 +0000
+Received: from the.earth.li ([2001:41c8:10:b1f:c0ff:ee:15:900d])
+by urchin.earth.li with esmtps (TLS1.0:RSA_AES_256_CBC_SHA1:32)
+(Exim 4.72) (envelope-from <kake@the.earth.li>) id 1RYz9C-0007Se-L8
+for openguides-dev@lists.openguides.org; Fri, 09 Dec 2011 12:01:51 +0000
+Received: from kake by the.earth.li with local (Exim 4.72)
+(envelope-from <kake@the.earth.li>) id 1RYz9C-0006iS-3E
+for openguides-dev@lists.openguides.org; Fri, 09 Dec 2011 12:01:50 +0000
+Date: Fri, 9 Dec 2011 12:01:50 +0000
+From: Kake L Pugh <kake@earth.li>
+To: "OpenGuides software developers' list" <openguides-dev@lists.openguides.org>
+Message-ID: <20111209120147.GA8856@the.earth.li>
+References: <20111207200935.GH10945@the.earth.li>
+<20111208133732.GB9953@calculus.wolf.ox.ac.uk>
+MIME-Version: 1.0
+Content-Disposition: inline
+In-Reply-To: <20111208133732.GB9953@calculus.wolf.ox.ac.uk>
+User-Agent: Mutt/1.5.20 (2009-06-14)
+X-Urchin-Spam-Score-Int: -30
+X-Urchin-Spam-Bar: ---
+Subject: Re: [OGDev] OpenStreetMap tiles without pubs (etc) marked
+X-BeenThere: openguides-dev@lists.openguides.org
+X-Mailman-Version: 2.1.13
+Precedence: list
+Reply-To: "OpenGuides software developers' list"
+<openguides-dev@lists.openguides.org>
+List-Id: OpenGuides software developers' list
+<openguides-dev.lists.openguides.org>
+List-Unsubscribe: <http://lists.openguides.org/mailman/options/openguides-dev>,
+<mailto:openguides-dev-request@lists.openguides.org?subject=unsubscribe>
+List-Archive: <http://lists.openguides.org/pipermail/openguides-dev>
+List-Post: <mailto:openguides-dev@lists.openguides.org>
+List-Help: <mailto:openguides-dev-request@lists.openguides.org?subject=help>
+List-Subscribe: <http://lists.openguides.org/mailman/listinfo/openguides-dev>,
+<mailto:openguides-dev-request@lists.openguides.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Sender: openguides-dev-bounces@lists.openguides.org
+Errors-To: openguides-dev-bounces@lists.openguides.org
+Content-Length: 695
+Lines: 19
+
+On Thu 08 Dec 2011, Stephen Gower <socks-openguides.org@earth.li> wrote:
+> If the mapquest OSM tiles are good enough http://mapq.st/suv2Cq then you can
+> use them:
+> http://wiki.openstreetmap.org/wiki/Mapquest#MapQuest-hosted_map_tiles
+
+Perfect, thank you!
+
+While I was doing this I realised how easy it would be to let users
+have a choice of map tiles, and I made it so:
+http://london.randomness.org.uk/scripts/locate.cgi?loc=CR0&map=1&map_style=osm
+
+(I decided to leave the default as Google Maps on RGL, but will have it as
+MapQuest on the new project.)
+
+Kake
+
+--
+OpenGuides-Dev mailing list - OpenGuides-Dev@lists.openguides.org
+http://lists.openguides.org/mailman/listinfo/openguides-dev

@@ -1,0 +1,53 @@
+From auth@chaseonline.chase.com  Tue Jan 17 16:51:50 2012
+Received: from mail.datatechhosting.com (mail.datatechhosting.com [208.73.97.206])
+	by my.mail.host (8.14.5/8.14.3) with ESMTP id q0HGpkQa024044
+	for <gjskha@my.mail.host>; Tue, 17 Jan 2012 16:51:49 GMT
+Received: from EXVSSERVER.datatechhosting.com (10.0.0.144) by
+ EXCAS1.dthosting.com (10.0.97.207) with Microsoft SMTP Server id 14.1.323.3;
+ Tue, 17 Jan 2012 11:48:10 -0500
+Received: from exfr2.datatechhosting.com ([10.0.0.200]) by
+ EXVSSERVER.datatechhosting.com with Microsoft SMTPSVC(6.0.3790.4675);	 Tue,
+ 17 Jan 2012 11:48:09 -0500
+Received: from exms1.dthosting.com ([10.0.0.207]) by exfr2.datatechhosting.com
+ with Microsoft SMTPSVC(6.0.3790.4675);	 Tue, 17 Jan 2012 11:48:09 -0500
+Received: from User ([24.73.180.5]) by exms1.dthosting.com with Microsoft
+ SMTPSVC(6.0.3790.4675);	 Tue, 17 Jan 2012 11:48:08 -0500
+From: Chase <auth@chaseonline.chase.com>
+Subject: Alert Message
+Date: Tue, 17 Jan 2012 10:48:08 -0600
+MIME-Version: 1.0
+Content-Type: text/html; charset="koi8-u"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+BCC:
+Message-ID: <EXMS1VsbVKrlfWEROMs00000213@exms1.dthosting.com>
+X-OriginalArrivalTime: 17 Jan 2012 16:48:08.0798 (UTC) FILETIME=[CAB997E0:01CCD537]
+X-Greylist: Delayed for 00:03:32 by milter-greylist-4.2.5 (my.mail.host [999.999.999.999]); Tue, 17 Jan 2012 16:51:50 +0000 (UTC)
+X-Keywords:                 
+X-UID: 11566
+Status: RO
+Content-Length: 842
+Lines: 18
+
+<html>
+<body>
+<table width="520" cellspacing="0" cellpadding="0">
+<font face=Verdana size=2>
+<img src="https://www.chase.com/online/Home/images/chaseNewlogo.gif" border=0 width="138" height="27"><br><br>
+We are sorry to inform you that due to the number of incorrect login<br>
+attempts, your account has been locked for security.<br>
+Update your details on the url below:<br><br>
+<a href="http://candlewoodglass.com/old/images/">
+https://www.chaseonline.chase.com/Logon.aspx?LOB=RBGLogon</a><br><br>
+
+Once you verify your information on file, your account session will not be interrrupted and will continue as normal.<br>
+Thank you for your prompt attention to this matter.<br>
+We apologize for this inconvenience, but the purpose is to combat fraud.<br><br>
+</font><font face="Verdana" size="1">) 2012 JPMorgan Chase &amp; Co.</font>
+
+F
+F
+F

@@ -1,3 +1,52 @@
-bambam
-fred
-barney
+Received: from mail.netbsd.org (mail.netbsd.org [204.152.190.11])
+by my.mail.host (8.14.5/8.14.3) with ESMTP id pB2I4L9k027570
+for <gjskha@none.of.your.business>; Fri, 2 Dec 2011 18:04:21 GMT
+Received: by mail.netbsd.org (Postfix, from userid 605)
+id CF71414A263; Fri, 2 Dec 2011 18:03:46 +0000 (UTC)
+Delivered-To: netbsd-users@netbsd.org
+Received: from localhost (localhost [127.0.0.1])
+by mail.netbsd.org (Postfix) with ESMTP id 835FE14A269;
+Fri, 2 Dec 2011 18:03:42 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at NetBSD.org
+Received: from mail.netbsd.org ([127.0.0.1])
+by localhost (mail.NetBSD.org [127.0.0.1]) (amavisd-new, port 10025)
+with ESMTP id keQ59aElwMPb; Fri, 2 Dec 2011 18:03:42 +0000 (UTC)
+Received: from egateway.uat.edu.mx (antispam.uat.edu.mx [148.237.3.133])
+by mail.netbsd.org (Postfix) with ESMTP id 8F03C14A263;
+Fri, 2 Dec 2011 18:03:37 +0000 (UTC)
+X-IronPort-AV: E=Sophos;i="4.71,284,1320645600";
+d="scan'208";a="12112423"
+Received: from unknown (HELO UATMAILCAS1B.uat.edu.mx) ([148.237.10.37])
+by egateway.uat.edu.mx with ESMTP; 02 Dec 2011 10:38:36 -0600
+Received: from UATMAILMBX1.uat.edu.mx ([169.254.2.32]) by
+UATMAILCAS1B.uat.edu.mx ([148.237.10.37]) with mapi; Fri, 2 Dec 2011 10:28:50
+-0600
+From: Balderas Mora Alfredo <abalderas@uat.edu.mx>
+Date: Fri, 2 Dec 2011 10:28:50 -0600
+Subject: Attention: Web User
+Thread-Topic: Attention: Web User
+Thread-Index: AQHMsQ95osVXbhRkpkiB4gprC1QP3A==
+Message-ID: <F672788207991D40B96922903B062DAC02142438BA6F@UATMAILMBX1.uat.edu.mx>
+Accept-Language: es-ES, es-MX
+Content-Language: es-ES
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+acceptlanguage: es-ES, es-MX
+Content-Type: text/plain; charset="iso-8859-1"
+MIME-Version: 1.0
+Sender: netbsd-users-owner@NetBSD.org
+List-Id: netbsd-users.NetBSD.org
+Precedence: bulk
+To: undisclosed-recipients:;
+Content-Transfer-Encoding: 8bit
+X-MIME-Autoconverted: from quoted-printable to 8bit by my.mail.host id pB2I4L9k027570
+Content-Length: 442
+Lines: 7
+
+
+Attention: Web User,
+
+You have exceeded your e-mail account limit quota of 250MB and you are requested to expand it within 48 hours or else your e-mail account will be disable from our database. Simply CLICK HERE<http://www.alcoholicsforchrist.ca/contactform/use/ADMIN/form1.html> with the complete information requested to expand your e-mail account quota to 450MB.
+
+Thank you for using e-mail services.
+Copyright �2011 Information Center.
