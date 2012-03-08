@@ -223,12 +223,12 @@ if [ $topt ]; then
 fi
 
 if [ $popt ]; then
+    spool=${spool_info[1]}
+    dispensation=${spool_info[2]
     if [ ! -f $spool ]; then
         echo "Error: cannot access mail spool \"$spool\". Exiting."
         cleanup 1
     else
-        spool=${spool_info[1]}
-        dispensation=${spool_info[2]}
         populate_corpus $spool $dispensation
     fi 
 fi
