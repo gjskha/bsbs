@@ -64,7 +64,8 @@ function populate_corpus() {
     disp=$2
     #echo spool is $spool and dispensation is $disp
     last=$( ls -1 $corpora/$disp/[0-9]* 2>/dev/null | wc -l )
-    awk -v "last=$last" -v "corpus=$corpora/$disp" 'BEGIN {RS = "\n\nFrom "} {print "From",$0 > corpus"/"last+NR} END {print "put "NR" messages into "corpus}' $spool
+    awk -v "last=$last" -v "corpus=$corpora/$disp" 'BEGIN {RS = "\n\nFrom "} {print "From",$0 > corpus"/"last+NR} \
+    END {print "put "NR" messages into "corpus}' $spool
 }
 
 # stats_file_rename:
@@ -224,7 +225,7 @@ fi
 
 if [ $popt ]; then
     spool=${spool_info[1]}
-    dispensation=${spool_info[2]
+    dispensation=${spool_info[2]}
     if [ ! -f $spool ]; then
         echo "Error: cannot access mail spool \"$spool\". Exiting."
         cleanup 1
